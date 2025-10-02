@@ -23,6 +23,18 @@ class Product:
         return NotImplemented
 
 
+class HouseholdChem(Product):
+    """Новый тип продукта: бытовая химия"""
+    def __init__(self, name: str, price: float, brand: str):
+        super().__init__(name, price)
+        self.brand = brand
+
+    def __str__(self):
+        return f"{self.name} ({self.brand}) — {self.price:.2f} руб."
+
+    def __repr__(self):
+        return f"HouseholdChem(name={self.name!r}, brand={self.brand!r}, price={self.price:.2f})"
+
 class Discount:
     def __init__(self, description: str, discount_percent: float):
         self.description = description
@@ -92,6 +104,20 @@ class Customer:
     def __repr__(self):
         return f"Customer(name={self.name!r}, orders={self.orders!r})"
 
+class ShoppingCart:
+    def __init__(self, customer: Customer, registered_by: str = "admin"):
+        self.customer = customer
+        self.registered_by = registered_by
+
+    def get_details(self):
+        all_products = [p for order in self.customer.orders for p in order.products]
+        product_names = ", ".join(str(p) for p in all_products)
+        total_sum = sum(p.price for p in all_products)
+        return (f"Покупатель {self.customer.name} приобрел: \n"
+                f"\t{product_names}. \n"
+                f"\tОбщая сумма: {total_sum:.2f} руб. \n"
+                f"\tПокупки зарегистрировал пользователь {self.registered_by}.\n")
+
 
 # =================== ДЕМОНСТРАЦИЯ ===================
 
@@ -100,13 +126,14 @@ if __name__ == "__main__":
     p1 = Product("Ноутбук", 60000)
     p2 = Product("Смартфон", 30000)
     p3 = Product("Наушники", 5000)
+    hc1 = HouseholdChem("Средство для мытья посуды", 250, "Fairy")
 
     # Клиенты
     c1 = Customer("Андрей")
     c2 = Customer("Мария")
 
     # Заказы
-    order1 = Order([p1, p3])  # ноутбук + наушники
+    order1 = Order([p1, hc1]) # ноутбук + химия
     order2 = Order([p2])      # смартфон
     order3 = Order([p3, p3])  # два наушника
 
@@ -129,3 +156,7 @@ if __name__ == "__main__":
     # Общая статистика
     print(f"Всего заказов: {Order.get_total_orders()}")
     print(f"Общая сумма заказов: {Order.get_total_sum():.2f} руб.")
+
+    # Корзина
+    cart = ShoppingCart(c1)
+    print(cart.get_details())
